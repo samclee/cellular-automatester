@@ -4,7 +4,7 @@
  *
  */
 
-var thingsToLoad = ['reticle.png'];
+var thingsToLoad = ['deadCell.png', 'liveCell.png'];
 
 var numCellW = 7;
 var numcellH = 7;
@@ -20,7 +20,6 @@ var c_grid = undefined,
     Cell = undefined,
     ConwayGrid = undefined,
     ptr = undefined,
-    reticle = undefined,
     stepTimer = undefined,
     running = undefined;
 
@@ -126,7 +125,6 @@ function setup() {
   } // ConwayGrid class
 
   c_grid = new ConwayGrid(0, 0, numCellW, numcellH, 20);
-  reticle = g.sprite('reticle.png');
   ptr = g.makePointer();
   ptr.press = () => {
     c_grid.toggleCell(Math.floor(ptr.x / 20), Math.floor(ptr.y / 20));
@@ -139,6 +137,5 @@ function setup() {
 } // setup()
 
 function play() {
-  if (!running)
-    reticle.setPosition(ptr.x - (ptr.x % 20), ptr.y - (ptr.y % 20));
+
 }
