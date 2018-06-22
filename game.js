@@ -6,7 +6,7 @@
 
 var thingsToLoad = ['reticle.png'];
 
-var g = hexi(800, 600, setup, thingsToLoad);
+var g = hexi(800, 600, setup, thingsToLoad, load);
 
 //g.scaleToWindow('white'); //prints scaling object to console
 g.backgroundColor = 'black';
@@ -17,8 +17,16 @@ var c_grid = undefined,
     Cell = undefined,
     ConwayGrid = undefined,
     ptr = undefined,
-    reticle = undefined;
+    reticle = undefined,
+    goBtn = undefined,
+    lifeA = undefined,
+    lifeB = undefined,
+    cellsA = undefined,
+    cellsB = undefined;
 
+function load() {
+  g.loadingBar()
+}
 
 function setup() {
   Cell = class {
@@ -87,6 +95,7 @@ function setup() {
     } // step()
 
     stepN(n) {
+      console.log('called')
       for (let i = 0; i < n; i++)
         this.step();
     } // stepN()
@@ -125,8 +134,14 @@ function setup() {
   reticle = g.sprite('reticle.png');
   ptr = g.makePointer();
   ptr.press = () => {
-    c_grid.toggleCell(Math.floor(ptr.x / 20), Math.floor(ptr.y / 20));
+    if (ptr.y < 400)
+      c_grid.toggleCell(Math.floor(ptr.x / 20), Math.floor(ptr.y / 20));
   };
+
+  goBtn = g.circle(160, 'lime', 'blue', 0, 0, 0);
+  g.stage.putCenter(goBtn, 0, 200);
+  g.makeInteractive(goBtn);
+  goBtn.press = () => {c_grid.stepN(10)};
 
   g.state = play;
 } // setup()
