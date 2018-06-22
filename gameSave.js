@@ -4,11 +4,9 @@
  *
  */
 
-var thingsToLoad = ['reticle.png'];
+var g = hexi(400, 300, setup);
 
-var g = hexi(800, 600, setup, thingsToLoad);
-
-//g.scaleToWindow('white'); //prints scaling object to console
+g.scaleToWindow('white'); //prints scaling object to console
 g.backgroundColor = 'black';
 
 g.start();
@@ -17,7 +15,8 @@ var c_grid = undefined,
     Cell = undefined,
     ConwayGrid = undefined,
     ptr = undefined,
-    reticle = undefined;
+    reticle = undefined,
+    foo = undefined;
 
 
 function setup() {
@@ -30,6 +29,14 @@ function setup() {
       this.rect.setPivot(0.5, 0.5);
       this.rect.setPosition(x + 0.5 * csz, y + 0.5 * csz);
       this.active = false;
+      
+      //g.makeInteractive(this.rect);
+      this.rect.press = () => {
+        if (this.active)
+          this.shrink();
+        else
+          this.grow();
+      }
     } // constructor()
 
     shrink() {
@@ -112,7 +119,7 @@ function setup() {
       return (cond1 || cond2);
     } // evalCell()
 
-    toggleCell(col, row) {
+    toggleCell(row, col) {
       if (this.grid[row][col].active)
         this.grid[row][col].shrink();
       else
@@ -121,17 +128,14 @@ function setup() {
 
   } // ConwayGrid class
 
-  c_grid = new ConwayGrid(0, 0, 40, 20, 20);
-  reticle = g.sprite('reticle.png');
+  //c_grid = new ConwayGrid(0, 0, 40, 20, 10);
+  reticle = g.circle(5, 'pink', 'pink', 0, 10,10);
   ptr = g.makePointer();
-  ptr.press = () => {
-    c_grid.toggleCell(Math.floor(ptr.x / 20), Math.floor(ptr.y / 20));
-  };
+  foo = 0;
 
   g.state = play;
 } // setup()
 
 function play() {
-  if (ptr.y < 400)
-    reticle.setPosition(ptr.x - (ptr.x % 20), ptr.y - (ptr.y % 20));
+  
 }
