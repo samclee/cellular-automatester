@@ -6,7 +6,10 @@
 
 var thingsToLoad = ['reticle.png'];
 
-var g = hexi(800, 600, setup, thingsToLoad, load);
+var numCellW = 7;
+var numcellH = 7;
+
+var g = hexi(numCellW * 20, numcellH * 20, setup, thingsToLoad, load);
 
 //g.scaleToWindow('white'); //prints scaling object to console
 g.backgroundColor = 'black';
@@ -18,11 +21,8 @@ var c_grid = undefined,
     ConwayGrid = undefined,
     ptr = undefined,
     reticle = undefined,
-    goBtn = undefined,
-    lifeA = undefined,
-    lifeB = undefined,
-    cellsA = undefined,
-    cellsB = undefined;
+    stepTimer = undefined,
+    running = undefined;
 
 function load() {
   g.loadingBar()
@@ -86,19 +86,14 @@ function setup() {
       // loop thru this.grid and call grow() or shrink() on each cell
       for (let row = 0; row < this.h; row++) {
         for (let col = 0; col < this.w; col++) {
+          //console.log(row, col)
           if (newGrid[row][col] === false)
             this.grid[row][col].shrink();
           else
             this.grid[row][col].grow();
         }
-      }      
+      }
     } // step()
-
-    stepN(n) {
-      console.log('called')
-      for (let i = 0; i < n; i++)
-        this.step();
-    } // stepN()
 
     evalCell(row, col) {     
       let nborCount = 0;
@@ -130,23 +125,20 @@ function setup() {
 
   } // ConwayGrid class
 
-  c_grid = new ConwayGrid(0, 0, 40, 20, 20);
+  c_grid = new ConwayGrid(0, 0, numCellW, numcellH, 20);
   reticle = g.sprite('reticle.png');
   ptr = g.makePointer();
   ptr.press = () => {
-    if (ptr.y < 400)
-      c_grid.toggleCell(Math.floor(ptr.x / 20), Math.floor(ptr.y / 20));
+    c_grid.toggleCell(Math.floor(ptr.x / 20), Math.floor(ptr.y / 20));
   };
 
-  goBtn = g.circle(160, 'lime', 'blue', 0, 0, 0);
-  g.stage.putCenter(goBtn, 0, 200);
-  g.makeInteractive(goBtn);
-  goBtn.press = () => {c_grid.stepN(10)};
+  running = false;
+  document.addEventListener('keydown', (e)=>{if(e.key === 's') c_grid.step()})
 
   g.state = play;
 } // setup()
 
 function play() {
-  if (ptr.y < 400)
+  if (!running)
     reticle.setPosition(ptr.x - (ptr.x % 20), ptr.y - (ptr.y % 20));
 }
