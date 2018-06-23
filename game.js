@@ -1,18 +1,18 @@
 /*
  *
- * Conway Fray
+ * Cellular Automata Toy
  *
  */
 
 var thingsToLoad = ['deadCell.png', 'liveCell.png'];
 
-var numCellW = 40;
+var numCellW = 20;
 var numcellH = 20;
 var csz = 20;
 
 var g = hexi(numCellW * csz, numcellH * csz, setup, thingsToLoad, load);
 
-//g.scaleToWindow('white'); //prints scaling object to console
+g.scaleToWindow('white'); //prints scaling object to console
 g.backgroundColor = 'black';
 
 g.start();
@@ -20,13 +20,12 @@ g.start();
 var c_grid = undefined,
     Cell = undefined,
     Plane = undefined,
-    ptr = undefined,
     stepTimer = undefined,
     running = undefined;
 
 function load() {
   g.loadingBar()
-}
+} // load()
 
 function setup() {
   Cell = class {
@@ -35,6 +34,9 @@ function setup() {
       this.y = y;
       this.rect = g.sprite(['deadCell.png', 'liveCell.png']);  
       this.rect.setPosition(x * csz, y * csz);
+      g.makeInteractive(this.rect);
+      this.rect.press = () => this.toggle();
+
       this.set(0);
     } // constructor()
 
@@ -44,8 +46,7 @@ function setup() {
     }
 
     toggle() {
-      this.rect.show(1 - this.active);
-      this.active = 1 - this.active;
+      this.set(1 - this.active);
     }
 
     getNborLocs() {
@@ -117,11 +118,7 @@ function setup() {
 
   } // Plane class
 
-  c_grid = new Plane(0, 0, numCellW, numcellH, 20);
-  ptr = g.makePointer();
-  ptr.press = () => {
-    c_grid.toggleCell(Math.floor(ptr.x / 20), Math.floor(ptr.y / 20));
-  };
+  c_grid = new Plane(0, 0, numCellW, numcellH);
 
   running = false;
   document.addEventListener('keydown', (e)=>{if(e.key === 's') c_grid.step()})
@@ -131,6 +128,6 @@ function setup() {
 
 function play() {
 
-}
+} // play()
 
 var mod = (n, m) => ((n % m) + m) % m;
