@@ -10,16 +10,18 @@ var numCellW = 20;
 var numcellH = 20;
 var csz = 20;
 
-var g = hexi(numCellW * csz, numcellH * csz, setup, thingsToLoad, load);
+var g = hexi(numCellW * csz, numcellH * csz + 300, setup, thingsToLoad, load);
 
 g.scaleToWindow('white'); //prints scaling object to console
 g.backgroundColor = 'black';
 
 g.start();
 
-var c_grid = undefined,
+var myPlane = undefined,
     Cell = undefined,
     Plane = undefined,
+    surviveVals = undefined,
+    birthVals = undefined,
     stepTimer = undefined,
     running = undefined;
 
@@ -28,26 +30,30 @@ function load() {
 } // load()
 
 function setup() {
+  surviveVals = [1, 2, 3, 4];
+  birthVals = [3];
+
   Cell = class {
     constructor(x, y) {
       this.x = x;
       this.y = y;
+      
       this.rect = g.sprite(['deadCell.png', 'liveCell.png']);  
       this.rect.setPosition(x * csz, y * csz);
-      g.makeInteractive(this.rect);
-      this.rect.press = () => this.toggle();
-
       this.set(0);
+      
+      g.makeInteractive(this.rect);
+      this.rect.press = () => this.toggle();    
     } // constructor()
 
     set(state) {
       this.rect.show(state);
       this.active = state;
-    }
+    } // set()
 
     toggle() {
       this.set(1 - this.active);
-    }
+    } // toggle()
 
     getNborLocs() {
       let nborLocs = [];
@@ -60,7 +66,7 @@ function setup() {
         }
       } 
       return nborLocs;
-    }// return neighbor locations
+    }// getNborLocs()
 
   } // Cell class
 
@@ -87,7 +93,7 @@ function setup() {
       for (let row = 0; row < this.h; row++) {
         newGrid.push([]);
         for (let col = 0; col < this.w; col++) {
-          newGrid[row].push(this.conwayEval(col, row));
+          newGrid[row].push(this.eval(col, row));
         }
       }
 
@@ -99,7 +105,7 @@ function setup() {
       }
     } // step()
 
-    conwayEval(col, row) {     
+    eval(col, row) {     
       let nborCount = 0;
       let nborLocs = this.grid[row][col].getNborLocs();
       for (let n of nborLocs) {
@@ -107,21 +113,16 @@ function setup() {
           nborCount++;
       }
 
-      // decide to live or die
-      let live = (nborCount === 3) || (this.grid[row][col].active && nborCount === 2);
-      return (live ? 1 : 0);
-    } // conwayEval()
-
-    toggleCell(col, row) {
-      this.grid[row][col].toggle();
-    }
-
+      // decide to survive/ birth
+      let aryToCheck = this.grid[row][col].active ? surviveVals : birthVals;
+      return (aryToCheck.includes(nborCount) ? 1 : 0);
+    } // eval()
   } // Plane class
 
-  c_grid = new Plane(0, 0, numCellW, numcellH);
+  myPlane = new Plane(0, 0, numCellW, numcellH);
 
   running = false;
-  document.addEventListener('keydown', (e)=>{if(e.key === 's') c_grid.step()})
+  document.addEventListener('keydown', (e)=>{if(e.key === 's') myPlane.step()})
 
   g.state = play;
 } // setup()
