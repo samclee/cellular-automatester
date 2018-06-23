@@ -6,10 +6,11 @@
 
 var thingsToLoad = ['deadCell.png', 'liveCell.png'];
 
-var numCellW = 7;
-var numcellH = 7;
+var numCellW = 40;
+var numcellH = 20;
+var csz = 20;
 
-var g = hexi(numCellW * 20, numcellH * 20, setup, thingsToLoad, load);
+var g = hexi(numCellW * csz, numcellH * csz, setup, thingsToLoad, load);
 
 //g.scaleToWindow('white'); //prints scaling object to console
 g.backgroundColor = 'black';
@@ -18,7 +19,7 @@ g.start();
 
 var c_grid = undefined,
     Cell = undefined,
-    ConwayGrid = undefined,
+    Plane = undefined,
     ptr = undefined,
     stepTimer = undefined,
     running = undefined;
@@ -29,45 +30,52 @@ function load() {
 
 function setup() {
   Cell = class {
-    constructor(x, y, csz) {
-      this.csz = csz;
-      this.deadClr = 'grey';
-      this.liveClr = 'lime';
-      this.rect = g.rectangle(csz * 0.5, csz * 0.5, this.deadClr);
-      this.rect.setPivot(0.5, 0.5);
-      this.rect.setPosition(x + 0.5 * csz, y + 0.5 * csz);
-      this.active = false;
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.rect = g.sprite(['deadCell.png', 'liveCell.png']);  
+      this.rect.setPosition(x * csz, y * csz);
+      this.set(0);
     } // constructor()
 
-    shrink() {
-      this.rect.width = this.csz * 0.5;
-      this.rect.height = this.csz * 0.5;
-      this.rect.fillStyle = this.deadClr;
-      this.active = false;
-    } // shrink()
+    set(state) {
+      this.rect.show(state);
+      this.active = state;
+    }
 
-    grow() {
-      this.rect.width = this.csz * 0.8;
-      this.rect.height = this.csz * 0.8;
-      this.rect.fillStyle = this.liveClr;
-      this.active = true;
-    } // grow()
+    toggle() {
+      this.rect.show(1 - this.active);
+      this.active = 1 - this.active;
+    }
+
+    getNborLocs() {
+      let nborLocs = [];
+      for (let dy = -1; dy < 2; dy++) {
+        for (let dx = -1; dx < 2; dx ++) {
+          let nborY = mod(this.y + dy, numcellH);
+          let nborX = mod(this.x + dx, numCellW);
+          if (dy !== 0 || dx !== 0)
+            nborLocs.push([nborX, nborY]);
+        }
+      } 
+      return nborLocs;
+    }// return neighbor locations
+
   } // Cell class
 
-  ConwayGrid = class {
-    constructor(x, y, w, h, csz) {
+  Plane = class {
+    constructor(x, y, w, h) {
       this.x = x;
       this.y = y;
       this.w = w;
       this.h = h;
-      this.csz = csz;
 
       // populate grid with cells
       this.grid = [];
       for(let row = 0; row < h; row++) {
         this.grid.push([]);
         for(let col = 0; col < w; col++) {
-          this.grid[row].push(new Cell(col * csz, row * csz, csz));
+          this.grid[row].push(new Cell(col, row));
         }
       }
     } // constructor
@@ -78,53 +86,38 @@ function setup() {
       for (let row = 0; row < this.h; row++) {
         newGrid.push([]);
         for (let col = 0; col < this.w; col++) {
-          newGrid[row].push(this.evalCell(row, col));
+          newGrid[row].push(this.conwayEval(col, row));
         }
       }
 
-      // loop thru this.grid and call grow() or shrink() on each cell
+      // loop thru this.grid and set each cell
       for (let row = 0; row < this.h; row++) {
         for (let col = 0; col < this.w; col++) {
-          //console.log(row, col)
-          if (newGrid[row][col] === false)
-            this.grid[row][col].shrink();
-          else
-            this.grid[row][col].grow();
+          this.grid[row][col].set(newGrid[row][col]);
         }
       }
     } // step()
 
-    evalCell(row, col) {     
+    conwayEval(col, row) {     
       let nborCount = 0;
-      for (let dy = -1; dy < 2; dy++) {
-        for (let dx = -1; dx < 2; dx ++) {
-          let notCenter = dy !== 0 || dx !== 0;
-          let rowExists = (this.grid[row + dy] !== undefined);
-          let colExists = rowExists &&
-                          (this.grid[row + dy][col + dx] !== undefined);
-          let nborActive  = colExists &&
-                          (this.grid[row + dy][col + dx].active);
-          if (notCenter && nborActive)
-            nborCount++;
-        }
-      } // count neighbors
+      let nborLocs = this.grid[row][col].getNborLocs();
+      for (let n of nborLocs) {
+        if (this.grid[n[1]][n[0]].active)
+          nborCount++;
+      }
 
       // decide to live or die
-      let cond1 = nborCount === 3;
-      let cond2 = this.grid[row][col].active && nborCount === 2;
-      return (cond1 || cond2);
-    } // evalCell()
+      let live = (nborCount === 3) || (this.grid[row][col].active && nborCount === 2);
+      return (live ? 1 : 0);
+    } // conwayEval()
 
     toggleCell(col, row) {
-      if (this.grid[row][col].active)
-        this.grid[row][col].shrink();
-      else
-        this.grid[row][col].grow();
+      this.grid[row][col].toggle();
     }
 
-  } // ConwayGrid class
+  } // Plane class
 
-  c_grid = new ConwayGrid(0, 0, numCellW, numcellH, 20);
+  c_grid = new Plane(0, 0, numCellW, numcellH, 20);
   ptr = g.makePointer();
   ptr.press = () => {
     c_grid.toggleCell(Math.floor(ptr.x / 20), Math.floor(ptr.y / 20));
@@ -139,3 +132,5 @@ function setup() {
 function play() {
 
 }
+
+var mod = (n, m) => ((n % m) + m) % m;
