@@ -30,8 +30,8 @@ function load() {
 } // load()
 
 function setup() {
-  surviveVals = [1, 2, 3, 4];
-  birthVals = [3];
+  surviveVals = [0, 0, 1, 1, 0, 0, 0, 0, 0];
+  birthVals = [0, 0, 0, 1, 0, 0, 0, 0, 0];
 
   Cell = class {
     constructor(x, y) {
@@ -115,7 +115,7 @@ function setup() {
 
       // decide to survive/ birth
       let aryToCheck = this.grid[row][col].active ? surviveVals : birthVals;
-      return (aryToCheck.includes(nborCount) ? 1 : 0);
+      return aryToCheck[nborCount];
     } // eval()
   } // Plane class
 
