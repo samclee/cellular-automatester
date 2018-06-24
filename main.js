@@ -22,17 +22,22 @@ var myPlane = undefined,
     Plane = undefined,
     surviveVals = undefined,
     birthVals = undefined,
+    running = undefined,
     stepTimer = undefined,
-    running = undefined;
+    timerThresh = undefined;
 
 function load() {
   g.loadingBar()
 } // load()
 
 function setup() {
-  surviveVals = [0, 0, 1, 1, 0, 0, 0, 0, 0];
+  // ---- Create Birth/Survive buttons
   birthVals = [0, 0, 0, 1, 0, 0, 0, 0, 0];
-
+  surviveVals = [0, 0, 1, 1, 0, 0, 0, 0, 0];
+  g.rectangle(150, 150, 'cyan', 'black', 0, 50, 400);
+  g.rectangle(150, 150, 'red', 'black', 0, 50, 550);
+  
+  // ---- Create Grid ----
   Cell = class {
     constructor(x, y) {
       this.x = x;
@@ -43,17 +48,13 @@ function setup() {
       this.set(0);
       
       g.makeInteractive(this.rect);
-      this.rect.press = () => this.toggle();    
+      this.rect.press = () => this.set(1 - this.active);   
     } // constructor()
 
     set(state) {
       this.rect.show(state);
       this.active = state;
     } // set()
-
-    toggle() {
-      this.set(1 - this.active);
-    } // toggle()
 
     getNborLocs() {
       let nborLocs = [];
@@ -108,10 +109,8 @@ function setup() {
     eval(col, row) {     
       let nborCount = 0;
       let nborLocs = this.grid[row][col].getNborLocs();
-      for (let n of nborLocs) {
-        if (this.grid[n[1]][n[0]].active)
-          nborCount++;
-      }
+      for (let n of nborLocs)
+        nborCount += this.grid[n[1]][n[0]].active;
 
       // decide to survive/ birth
       let aryToCheck = this.grid[row][col].active ? surviveVals : birthVals;
@@ -121,14 +120,20 @@ function setup() {
 
   myPlane = new Plane(0, 0, numCellW, numcellH);
 
+  // ---- Create Start/Stop button ----
   running = false;
-  document.addEventListener('keydown', (e)=>{if(e.key === 's') myPlane.step()})
+  stepTimer = 0;
+  timerThresh = 5;
+  document.addEventListener('keydown', (e)=>{if(e.key === 's') running = !running});
 
   g.state = play;
 } // setup()
 
 function play() {
-
+  if (running && (++stepTimer > timerThresh)) {
+    myPlane.step();
+    stepTimer = 0;
+  }
 } // play()
 
 var mod = (n, m) => ((n % m) + m) % m;
