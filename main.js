@@ -136,4 +136,14 @@ function play() {
   }
 } // play()
 
+function determineName() {
+  let key = '';
+  for (let c of birthVals)
+    key += c;
+  for (let c of surviveVals)
+    key += c;
+
+  return (names[key] ? names[key] : 'N/A');
+}
+
 var mod = (n, m) => ((n % m) + m) % m;
