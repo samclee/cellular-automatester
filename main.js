@@ -8,12 +8,15 @@ var thingsToLoad = ['images/deadCell.png',
                     'images/liveCell.png',
                     'images/cell-buttons.png',
                     'images/birth-pressed.png',
-                    'images/survive-pressed.png'
+                    'images/survive-pressed.png',
+                    'puzzler.otf'
                     ];
 
 var numCellW = 20;
 var numcellH = 20;
 var csz = 20;
+var btnsz = 40;
+var thgt = 40;
 
 var g = hexi(numCellW * csz, numcellH * csz + 300, setup, thingsToLoad, load);
 
@@ -38,23 +41,42 @@ function load() {
 
 function setup() {
   // ---- Create Birth/Survive buttons
-  birthVals = [0, 0, 0, 1, 0, 0, 0, 0, 0];
-  surviveVals = [0, 0, 1, 1, 0, 0, 0, 0, 0];
-  g.rectangle(150, 150, 'red', 'black', 0, 50, 550);
+  birthVals =   [0, 0, 0, 1, 0, 0, 0, 0, 0, 0];
+  surviveVals = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0];
 
   CellBtn = class {
-    constructor(x, y, ary, id) {
-      this.btn = g.sprite(g.frame('images/cell-buttons.png', id * 50, 0, 50, 50));
+    constructor(x, y, type, id) {
+      let pressedImg = type ? 'images/survive-pressed.png' : 'images/birth-pressed.png'
+      this.btn = g.sprite([g.frame('images/cell-buttons.png', id * btnsz, 0, btnsz, btnsz),
+                            g.frame(pressedImg, id * btnsz, 0, btnsz, btnsz)
+                          ]);
       this.btn.setPosition(x, y);
-      this.ary = ary;
+      
+      this.ary = type ? surviveVals : birthVals;
       this.id = id;
+      this.set(this.ary[this.id]);
+
+      g.makeInteractive(this.btn);
+      this.btn.press = () => this.set(1 - this.ary[this.id]);   
+    }
+
+    set(state) {
+      this.btn.show(state);
+      this.ary[this.id] = state;
     }
   }
 
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 3; col++) {
-      let tempBtn = new CellBtn(50 + col * 50, 400 + row * 50, birthVals, row * 3 + col);
-    }
+  // birth and survive selection
+  let msg = g.text('Choose birth criteria', '18px puzzler', 'white', 0, 410);
+  msg.setPivot(0.5, 0.5);
+  msg.x = 200;
+
+  msg = g.text('Choose survive criteria', '18px puzzler', 'white', 0, 410 + thgt + btnsz);
+  msg.setPivot(0.5, 0.5);
+  msg.x = 200;
+  for (let i = 0; i < 10; i++) {
+    new CellBtn(i * btnsz, 400 + thgt, 0, i);
+    new CellBtn(i * btnsz, 400 + 2 * thgt + btnsz, 1, i);
   }
   
   // ---- Create Grid ----
@@ -65,6 +87,7 @@ function setup() {
       
       this.rect = g.sprite(['images/deadCell.png', 'images/liveCell.png']);  
       this.rect.setPosition(x * csz, y * csz);
+      this.active = 0;
       this.set(0);
       
       g.makeInteractive(this.rect);
