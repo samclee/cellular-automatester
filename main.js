@@ -4,7 +4,12 @@
  *
  */
 
-var thingsToLoad = ['deadCell.png', 'liveCell.png'];
+var thingsToLoad = ['images/deadCell.png', 
+                    'images/liveCell.png',
+                    'images/cell-buttons.png',
+                    'images/birth-pressed.png',
+                    'images/survive-pressed.png'
+                    ];
 
 var numCellW = 20;
 var numcellH = 20;
@@ -22,6 +27,7 @@ var myPlane = undefined,
     Plane = undefined,
     surviveVals = undefined,
     birthVals = undefined,
+    CellBtn = undefined,
     running = undefined,
     stepTimer = undefined,
     timerThresh = undefined;
@@ -34,8 +40,22 @@ function setup() {
   // ---- Create Birth/Survive buttons
   birthVals = [0, 0, 0, 1, 0, 0, 0, 0, 0];
   surviveVals = [0, 0, 1, 1, 0, 0, 0, 0, 0];
-  g.rectangle(150, 150, 'cyan', 'black', 0, 50, 400);
   g.rectangle(150, 150, 'red', 'black', 0, 50, 550);
+
+  CellBtn = class {
+    constructor(x, y, ary, id) {
+      this.btn = g.sprite(g.frame('images/cell-buttons.png', id * 50, 0, 50, 50));
+      this.btn.setPosition(x, y);
+      this.ary = ary;
+      this.id = id;
+    }
+  }
+
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      let tempBtn = new CellBtn(50 + col * 50, 400 + row * 50, birthVals, row * 3 + col);
+    }
+  }
   
   // ---- Create Grid ----
   Cell = class {
@@ -43,7 +63,7 @@ function setup() {
       this.x = x;
       this.y = y;
       
-      this.rect = g.sprite(['deadCell.png', 'liveCell.png']);  
+      this.rect = g.sprite(['images/deadCell.png', 'images/liveCell.png']);  
       this.rect.setPosition(x * csz, y * csz);
       this.set(0);
       
@@ -123,7 +143,7 @@ function setup() {
   // ---- Create Start/Stop button ----
   running = false;
   stepTimer = 0;
-  timerThresh = 5;
+  timerThresh = 10;
   document.addEventListener('keydown', (e)=>{if(e.key === 's') running = !running});
 
   g.state = play;
