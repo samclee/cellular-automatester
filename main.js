@@ -33,7 +33,9 @@ var myPlane = undefined,
     CellBtn = undefined,
     running = undefined,
     stepTimer = undefined,
-    timerThresh = undefined;
+    timerThresh = undefined,
+    ruleName = undefined,
+    RunBtn = undefined;
 
 function load() {
   g.loadingBar()
@@ -43,6 +45,16 @@ function setup() {
   // ---- Create Birth/Survive buttons
   birthVals =   [0, 0, 0, 1, 0, 0, 0, 0, 0, 0];
   surviveVals = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0];
+
+  // special rule names
+  let msg = g.text('Special name', '18px puzzler', '#ffff00', 0, 410 + thgt * 2 + btnsz * 2);
+  msg.setPivot(0.5, 0.5);
+  msg.x = 200;
+
+  ruleName = g.text('N/A', '18px puzzler', '#ffff00', 0, 410 + thgt * 2 + btnsz * 2 + 30);
+  ruleName.setPivot(0.5, 0.5);
+  ruleName.x = 200;
+  determineName();
 
   CellBtn = class {
     constructor(x, y, type, id) {
@@ -63,15 +75,16 @@ function setup() {
     set(state) {
       this.btn.show(state);
       this.ary[this.id] = state;
+      determineName();
     }
   }
 
   // birth and survive selection
-  let msg = g.text('Choose birth criteria', '18px puzzler', 'white', 0, 410);
+  msg = g.text('Birth rule', '18px puzzler', '#ff00ff', 0, 410);
   msg.setPivot(0.5, 0.5);
   msg.x = 200;
 
-  msg = g.text('Choose survive criteria', '18px puzzler', 'white', 0, 410 + thgt + btnsz);
+  msg = g.text('Survive rule', '18px puzzler', '#00ffff', 0, 410 + thgt + btnsz);
   msg.setPivot(0.5, 0.5);
   msg.x = 200;
   for (let i = 0; i < 10; i++) {
@@ -166,8 +179,21 @@ function setup() {
   // ---- Create Start/Stop button ----
   running = false;
   stepTimer = 0;
-  timerThresh = 10;
+  timerThresh = 8;
   document.addEventListener('keydown', (e)=>{if(e.key === 's') running = !running});
+
+  RunBtn = {rect: g.rectangle(380, 60, 'lime', 'black', 0, 10, 630),
+            txt: g.text('START!', '30px puzzler', 'white',0, 646)
+            };
+  RunBtn.txt.setPivot(0.5, 0.5);
+  RunBtn.txt.x = 200;
+
+  g.makeInteractive(RunBtn.rect);
+  RunBtn.rect.press = () => {
+    running = !running;
+    RunBtn.txt.content = running ? 'STOP!' : 'START!';
+    RunBtn.rect.fillStyle = running ? 'red' : 'lime';
+  }
 
   g.state = play;
 } // setup()
@@ -180,13 +206,8 @@ function play() {
 } // play()
 
 function determineName() {
-  let key = '';
-  for (let c of birthVals)
-    key += c;
-  for (let c of surviveVals)
-    key += c;
-
-  return (names[key] ? names[key] : 'N/A');
+  let key = birthVals.join('') + surviveVals.join('');
+  ruleName.content = '\'' + (names[key] ? names[key] : 'N/A') + '\'';
 }
 
 var mod = (n, m) => ((n % m) + m) % m;
