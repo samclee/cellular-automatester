@@ -20,7 +20,7 @@ var thgt = 40;
 
 var g = hexi(numCellW * csz, numcellH * csz + 300, setup, thingsToLoad, load);
 
-g.scaleToWindow('white'); //prints scaling object to console
+g.scaleToWindow('black'); //prints scaling object to console
 g.backgroundColor = 'black';
 
 g.start();
