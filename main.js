@@ -43,8 +43,8 @@ function load() {
 
 function setup() {
   // ---- Create Birth/Survive buttons
-  birthVals =   [0, 0, 0, 1, 0, 0, 0, 0, 0, 0];
-  surviveVals = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0];
+  birthVals =   [0, 0, 0, 1, 0, 0, 0, 0, 0];
+  surviveVals = [0, 0, 1, 1, 0, 0, 0, 0, 0];
 
   // special rule names
   let msg = g.text('Special name', '18px puzzler', '#ffff00', 0, 410 + thgt * 2 + btnsz * 2);
@@ -87,7 +87,7 @@ function setup() {
   msg = g.text('Survive rule', '18px puzzler', '#00ffff', 0, 410 + thgt + btnsz);
   msg.setPivot(0.5, 0.5);
   msg.x = 200;
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 9; i++) {
     new CellBtn(i * btnsz, 400 + thgt, 0, i);
     new CellBtn(i * btnsz, 400 + 2 * thgt + btnsz, 1, i);
   }
