@@ -6,4 +6,4 @@ The board edges loop back to each other, Pac-man style. Moving patterns like gli
 ## Rule Names!
 ![](https://raw.githubusercontent.com/samclee/cellular-automata-toy/master/readme/name-example.gif)
 
-If a rule has a special name, it is displayed. The list of rule names was taken from [here](http://www.conwaylife.com/wiki/List_of_Life-like_cellular_automata)
+If a rule has a special name, it is displayed. The list of rule names was taken from [here](http://www.conwaylife.com/wiki/List_of_Life-like_cellular_automata).
