@@ -1,4 +1,4 @@
-# Cellular Automatester [(link)](http://samchristopherlee.com/cellular-automata-toy/)
+# Cellular Automatester [(link)](http://samchristopherlee.com/cellular-automatester/)
 ## Wrapped Edges!
 ![](https://raw.githubusercontent.com/samclee/cellular-automata-toy/master/readme/wrapped-edges.gif)
 
